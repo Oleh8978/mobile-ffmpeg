@@ -902,7 +902,7 @@ set_toolchain_clang_paths() {
 
     export LD=${BUILD_HOST}-ld
     export RANLIB=${BUILD_HOST}-ranlib
-    export STRIP=${BUILD_HOST}-strip
+    export STRIP="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-strip"
 
     export INSTALL_PKG_CONFIG_DIR="${BASEDIR}/prebuilt/android-$(get_target_build)/pkgconfig"
     export ZLIB_PACKAGE_CONFIG_PATH="${INSTALL_PKG_CONFIG_DIR}/zlib.pc"
