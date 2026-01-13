@@ -47,6 +47,17 @@
 #include "libavutil/imgutils.h"
 #include "libavutil/samplefmt.h"
 
+/* Compatibility wrapper for removed avcodec_find_best_pix_fmt_of_2 */
+#ifndef avcodec_find_best_pix_fmt_of_2
+static enum AVPixelFormat compat_avcodec_find_best_pix_fmt_of_2(enum AVPixelFormat fmt1, enum AVPixelFormat fmt2, enum AVPixelFormat target, int has_alpha, int *loss_ptr) {
+    // Simple replacement: prefer the target if available, otherwise return the first available format
+    if (fmt1 == target) return fmt1;
+    if (fmt2 == target) return fmt2;
+    return (fmt1 != AV_PIX_FMT_NONE) ? fmt1 : fmt2;
+}
+#define avcodec_find_best_pix_fmt_of_2 compat_avcodec_find_best_pix_fmt_of_2
+#endif
+
 static const enum AVPixelFormat *get_compliance_unofficial_pix_fmts(enum AVCodecID codec_id, const enum AVPixelFormat default_formats[])
 {
     static const enum AVPixelFormat mjpeg_formats[] =
@@ -107,8 +118,10 @@ void choose_sample_fmt(AVStream *st, AVCodec *codec)
                 break;
         }
         if (*p == -1) {
+#ifdef AV_CODEC_CAP_LOSSLESS
             if((codec->capabilities & AV_CODEC_CAP_LOSSLESS) && av_get_sample_fmt_name(st->codecpar->format) > av_get_sample_fmt_name(codec->sample_fmts[0]))
                 av_log(NULL, AV_LOG_ERROR, "Conversion will not be lossless.\n");
+#endif
             if(av_get_sample_fmt_name(st->codecpar->format))
             av_log(NULL, AV_LOG_WARNING,
                    "Incompatible sample format '%s' for codec '%s', auto-selecting format '%s'\n",

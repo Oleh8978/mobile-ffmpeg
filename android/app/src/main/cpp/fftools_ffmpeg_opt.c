@@ -2216,8 +2216,13 @@ int open_output_file(OptionsContext *o, const char *filename)
             for (i = 0; i < nb_input_streams; i++) {
                 int new_area;
                 ist = input_streams[i];
+#ifdef HAVE_AV_STREAM_CODEC_INFO_NB_FRAMES
                 new_area = ist->st->codecpar->width * ist->st->codecpar->height + 100000000*!!ist->st->codec_info_nb_frames
                            + 5000000*!!(ist->st->disposition & AV_DISPOSITION_DEFAULT);
+#else
+                new_area = ist->st->codecpar->width * ist->st->codecpar->height
+                           + 5000000*!!(ist->st->disposition & AV_DISPOSITION_DEFAULT);
+#endif
                 if (ist->user_set_discard == AVDISCARD_ALL)
                     continue;
                 if((qcr!=MKTAG('A', 'P', 'I', 'C')) && (ist->st->disposition & AV_DISPOSITION_ATTACHED_PIC))
@@ -2240,8 +2245,13 @@ int open_output_file(OptionsContext *o, const char *filename)
             for (i = 0; i < nb_input_streams; i++) {
                 int score;
                 ist = input_streams[i];
+#ifdef HAVE_AV_STREAM_CODEC_INFO_NB_FRAMES
                 score = ist->st->codecpar->channels + 100000000*!!ist->st->codec_info_nb_frames
                         + 5000000*!!(ist->st->disposition & AV_DISPOSITION_DEFAULT);
+#else
+                score = ist->st->codecpar->channels
+                        + 5000000*!!(ist->st->disposition & AV_DISPOSITION_DEFAULT);
+#endif
                 if (ist->user_set_discard == AVDISCARD_ALL)
                     continue;
                 if (ist->st->codecpar->codec_type == AVMEDIA_TYPE_AUDIO &&

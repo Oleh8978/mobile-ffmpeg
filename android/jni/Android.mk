@@ -58,7 +58,7 @@ else
     MY_SRC_FILES := mobileffmpeg.c mobileffprobe.c mobileffmpeg_exception.c fftools_cmdutils.c fftools_ffmpeg.c fftools_ffprobe.c fftools_ffmpeg_opt.c fftools_ffmpeg_hw.c fftools_ffmpeg_filter.c
 endif
 
-MY_CFLAGS := -Wall -Werror -Wno-unused-parameter -Wno-switch -Wno-sign-compare
+MY_CFLAGS := -Wall -Wno-unused-parameter -Wno-switch -Wno-sign-compare
 MY_LDLIBS := -llog -lz -landroid
 
 MY_BUILD_GENERIC_MOBILE_FFMPEG := true

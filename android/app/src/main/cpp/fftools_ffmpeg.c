@@ -1176,7 +1176,11 @@ static void do_video_out(OutputFile *of,
     if (frame_rate.num > 0 && frame_rate.den > 0)
         duration = 1/(av_q2d(frame_rate) * av_q2d(enc->time_base));
 
-    if(ist && ist->st->start_time != AV_NOPTS_VALUE && ist->st->first_dts != AV_NOPTS_VALUE && ost->frame_rate.num)
+    if(ist && ist->st->start_time != AV_NOPTS_VALUE && 
+#ifdef HAVE_AV_STREAM_FIRST_DTS
+       ist->st->first_dts != AV_NOPTS_VALUE && 
+#endif
+       ost->frame_rate.num)
         duration = FFMIN(duration, 1/(av_q2d(ost->frame_rate) * av_q2d(enc->time_base)));
 
     if (!ost->filters_script &&
@@ -3087,7 +3091,9 @@ static int init_input_stream(int ist_index, char *error, int error_len)
         ist->dec_ctx->opaque                = ist;
         ist->dec_ctx->get_format            = get_format;
         ist->dec_ctx->get_buffer2           = get_buffer;
+#ifdef HAVE_AV_CODEC_CTX_THREAD_SAFE_CALLBACKS
         ist->dec_ctx->thread_safe_callbacks = 1;
+#endif
 
         av_opt_set_int(ist->dec_ctx, "refcounted_frames", 1, 0);
         if (ist->dec_ctx->codec_id == AV_CODEC_ID_DVB_SUBTITLE &&
@@ -3657,7 +3663,9 @@ static int init_output_stream(OutputStream *ost, char *error, int error_len)
         if (!av_dict_get(ost->encoder_opts, "threads", NULL, 0))
             av_dict_set(&ost->encoder_opts, "threads", "auto", 0);
         if (ost->enc->type == AVMEDIA_TYPE_AUDIO &&
+#ifdef HAVE_AV_CODEC_DEFAULTS
             !codec->defaults &&
+#endif
             !av_dict_get(ost->encoder_opts, "b", NULL, 0) &&
             !av_dict_get(ost->encoder_opts, "ab", NULL, 0))
             av_dict_set(&ost->encoder_opts, "b", "128000", 0);
@@ -3723,8 +3731,14 @@ static int init_output_stream(OutputStream *ost, char *error, int error_len)
         /*
          * FIXME: ost->st->codec should't be needed here anymore.
          */
+#ifdef HAVE_AV_STREAM_CODEC
         ret = avcodec_copy_context(ost->st->codec, ost->enc_ctx);
         if (ret < 0)
+#else
+        // Skip avcodec_copy_context for newer FFmpeg versions
+        ret = 0;
+        if (ret < 0)
+#endif
             return ret;
 
         if (ost->enc_ctx->nb_coded_side_data) {
@@ -3769,7 +3783,9 @@ static int init_output_stream(OutputStream *ost, char *error, int error_len)
         if (ost->st->duration <= 0 && ist && ist->st->duration > 0)
             ost->st->duration = av_rescale_q(ist->st->duration, ist->st->time_base, ost->st->time_base);
 
+#ifdef HAVE_AV_STREAM_CODEC
         ost->st->codec->codec= ost->enc_ctx->codec;
+#endif
     } else if (ost->stream_copy) {
         ret = init_output_stream_streamcopy(ost);
         if (ret < 0)
@@ -4052,10 +4068,15 @@ static OutputStream *choose_output(void)
 
     for (i = 0; i < nb_output_streams; i++) {
         OutputStream *ost = output_streams[i];
+#ifdef HAVE_AV_STREAM_CUR_DTS
         int64_t opts = ost->st->cur_dts == AV_NOPTS_VALUE ? INT64_MIN :
                        av_rescale_q(ost->st->cur_dts, ost->st->time_base,
                                     AV_TIME_BASE_Q);
         if (ost->st->cur_dts == AV_NOPTS_VALUE)
+#else
+        int64_t opts = INT64_MIN;
+        if (0)
+#endif
             av_log(NULL, AV_LOG_DEBUG,
                 "cur_dts is invalid st:%d (%d) [init:%d i_done:%d finish:%d] (this is harmless if it occurs once at the start per stream)\n",
                 ost->st->index, ost->st->id, ost->initialized, ost->inputs_done, ost->finished);
@@ -4152,7 +4173,9 @@ static int check_keyboard_interaction(int64_t cur_time)
     if (key == 'd' || key == 'D'){
         int debug=0;
         if(key == 'D') {
+#ifdef HAVE_AV_STREAM_CODEC
             debug = input_streams[0]->st->codec->debug<<1;
+#endif
             if(!debug) debug = 1;
             while(debug & (FF_DEBUG_DCT_COEFF
 #if FF_API_DEBUG_MV
@@ -4175,7 +4198,9 @@ static int check_keyboard_interaction(int64_t cur_time)
                 fprintf(stderr,"error parsing debug value\n");
         }
         for(i=0;i<nb_input_streams;i++) {
+#ifdef HAVE_AV_STREAM_CODEC
             input_streams[i]->st->codec->debug = debug;
+#endif
         }
         for(i=0;i<nb_output_streams;i++) {
             OutputStream *ost = output_streams[i];

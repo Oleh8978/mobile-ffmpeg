@@ -458,6 +458,7 @@ cp -f ${BASEDIR}/src/ffmpeg/libavformat/network.h ${BASEDIR}/prebuilt/android-$(
 cp -f ${BASEDIR}/src/ffmpeg/libavformat/os_support.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavformat
 cp -f ${BASEDIR}/src/ffmpeg/libavformat/url.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavformat
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/internal.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
+cp -f ${BASEDIR}/src/ffmpeg/libavutil/attributes_internal.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/libm.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/reverse.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/thread.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil

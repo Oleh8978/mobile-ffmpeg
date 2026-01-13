@@ -48,7 +48,7 @@ struct CallbackData {
 };
 
 /** Execution map variables */
-const int EXECUTION_MAP_SIZE = 1000;
+#define EXECUTION_MAP_SIZE 1000
 static volatile int executionMap[EXECUTION_MAP_SIZE];
 static pthread_mutex_t executionMapMutex;
 

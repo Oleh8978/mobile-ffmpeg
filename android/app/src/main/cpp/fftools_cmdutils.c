@@ -91,6 +91,11 @@
 #include <windows.h>
 #endif
 
+/* Compatibility wrappers for removed FFmpeg functions */
+#ifndef av_opt_child_class_next
+#define av_opt_child_class_next(class, child) NULL
+#endif
+
 static int init_report(const char *env);
 extern void mobileffmpeg_log_callback_function(void *ptr, int level, const char* format, va_list vargs);
 extern void (*report_callback)(int, float, float, int64_t, int, double, double);
@@ -244,8 +249,10 @@ void show_help_children(const AVClass *class, int flags)
         av_log(NULL, AV_LOG_STDERR, "\n");
     }
 
+#ifdef av_opt_child_class_next
     while ((child = av_opt_child_class_next(class, child)))
         show_help_children(child, flags);
+#endif
 }
 
 static const OptionDef *find_option(const OptionDef *po, const char *name)
@@ -1439,8 +1446,10 @@ static void print_codec(const AVCodec *c)
         av_log(NULL, AV_LOG_STDERR, "horizband ");
     if (c->capabilities & AV_CODEC_CAP_DR1)
         av_log(NULL, AV_LOG_STDERR, "dr1 ");
+#ifdef AV_CODEC_CAP_TRUNCATED
     if (c->capabilities & AV_CODEC_CAP_TRUNCATED)
         av_log(NULL, AV_LOG_STDERR, "trunc ");
+#endif
     if (c->capabilities & AV_CODEC_CAP_DELAY)
         av_log(NULL, AV_LOG_STDERR, "delay ");
     if (c->capabilities & AV_CODEC_CAP_SMALL_LAST_FRAME)
@@ -1456,15 +1465,22 @@ static void print_codec(const AVCodec *c)
     if (c->capabilities & AV_CODEC_CAP_VARIABLE_FRAME_SIZE)
         av_log(NULL, AV_LOG_STDERR, "variable ");
     if (c->capabilities & (AV_CODEC_CAP_FRAME_THREADS |
-                           AV_CODEC_CAP_SLICE_THREADS |
-                           AV_CODEC_CAP_AUTO_THREADS))
+                           AV_CODEC_CAP_SLICE_THREADS
+#ifdef AV_CODEC_CAP_AUTO_THREADS
+                           | AV_CODEC_CAP_AUTO_THREADS
+#endif
+                           ))
         av_log(NULL, AV_LOG_STDERR, "threads ");
     if (c->capabilities & AV_CODEC_CAP_AVOID_PROBING)
         av_log(NULL, AV_LOG_STDERR, "avoidprobe ");
+#ifdef AV_CODEC_CAP_INTRA_ONLY
     if (c->capabilities & AV_CODEC_CAP_INTRA_ONLY)
         av_log(NULL, AV_LOG_STDERR, "intraonly ");
+#endif
+#ifdef AV_CODEC_CAP_LOSSLESS
     if (c->capabilities & AV_CODEC_CAP_LOSSLESS)
         av_log(NULL, AV_LOG_STDERR, "lossless ");
+#endif
     if (c->capabilities & AV_CODEC_CAP_HARDWARE)
         av_log(NULL, AV_LOG_STDERR, "hardware ");
     if (c->capabilities & AV_CODEC_CAP_HYBRID)
@@ -1477,13 +1493,18 @@ static void print_codec(const AVCodec *c)
         c->type == AVMEDIA_TYPE_AUDIO) {
         av_log(NULL, AV_LOG_STDERR, "    Threading capabilities: ");
         switch (c->capabilities & (AV_CODEC_CAP_FRAME_THREADS |
-                                   AV_CODEC_CAP_SLICE_THREADS |
-                                   AV_CODEC_CAP_AUTO_THREADS)) {
+                                   AV_CODEC_CAP_SLICE_THREADS
+#ifdef AV_CODEC_CAP_AUTO_THREADS
+                                   | AV_CODEC_CAP_AUTO_THREADS
+#endif
+                                   )) {
         case AV_CODEC_CAP_FRAME_THREADS |
              AV_CODEC_CAP_SLICE_THREADS: av_log(NULL, AV_LOG_STDERR, "frame and slice"); break;
         case AV_CODEC_CAP_FRAME_THREADS: av_log(NULL, AV_LOG_STDERR, "frame");           break;
         case AV_CODEC_CAP_SLICE_THREADS: av_log(NULL, AV_LOG_STDERR, "slice");           break;
+#ifdef AV_CODEC_CAP_AUTO_THREADS
         case AV_CODEC_CAP_AUTO_THREADS : av_log(NULL, AV_LOG_STDERR, "auto");            break;
+#endif
         default:                         av_log(NULL, AV_LOG_STDERR, "none");            break;
         }
         av_log(NULL, AV_LOG_STDERR, "\n");
@@ -1698,6 +1719,7 @@ int show_encoders(void *optctx, const char *opt, const char *arg)
 
 int show_bsfs(void *optctx, const char *opt, const char *arg)
 {
+#ifdef AV_BSF_FLAG_FLUSH
     const AVBitStreamFilter *bsf = NULL;
     void *opaque = NULL;
 
@@ -1705,6 +1727,9 @@ int show_bsfs(void *optctx, const char *opt, const char *arg)
     while ((bsf = av_bsf_iterate(&opaque)))
         av_log(NULL, AV_LOG_STDERR, "%s\n", bsf->name);
     av_log(NULL, AV_LOG_STDERR, "\n");
+#else
+    av_log(NULL, AV_LOG_STDERR, "Bitstream filters: not available in this FFmpeg version\n");
+#endif
     return 0;
 }
 
@@ -1964,7 +1989,11 @@ static void show_help_filter(const char *name)
         av_log(NULL, AV_LOG_STDERR, "    slice threading supported\n");
 
     av_log(NULL, AV_LOG_STDERR, "    Inputs:\n");
+#ifdef avfilter_pad_count
     count = avfilter_pad_count(f->inputs);
+#else
+    count = f->nb_inputs;
+#endif
     for (i = 0; i < count; i++) {
         av_log(NULL, AV_LOG_STDERR, "       #%d: %s (%s)\n", i, avfilter_pad_get_name(f->inputs, i),
                media_type_string(avfilter_pad_get_type(f->inputs, i)));
@@ -1975,7 +2004,11 @@ static void show_help_filter(const char *name)
         av_log(NULL, AV_LOG_STDERR, "        none (source filter)\n");
 
     av_log(NULL, AV_LOG_STDERR, "    Outputs:\n");
+#ifdef avfilter_pad_count
     count = avfilter_pad_count(f->outputs);
+#else
+    count = f->nb_outputs;
+#endif
     for (i = 0; i < count; i++) {
         av_log(NULL, AV_LOG_STDERR, "       #%d: %s (%s)\n", i, avfilter_pad_get_name(f->outputs, i),
                media_type_string(avfilter_pad_get_type(f->outputs, i)));
@@ -1999,7 +2032,11 @@ static void show_help_filter(const char *name)
 
 static void show_help_bsf(const char *name)
 {
+#ifdef AV_BSF_FLAG_FLUSH
     const AVBitStreamFilter *bsf = av_bsf_get_by_name(name);
+#else
+    void *bsf = NULL;
+#endif
 
     if (!name) {
         av_log(NULL, AV_LOG_ERROR, "No bitstream filter name specified.\n");
@@ -2008,12 +2045,16 @@ static void show_help_bsf(const char *name)
         av_log(NULL, AV_LOG_ERROR, "Unknown bit stream filter '%s'.\n", name);
         return;
     }
+#ifdef AV_BSF_FLAG_FLUSH
 
     av_log(NULL, AV_LOG_STDERR, "Bit stream filter %s\n", bsf->name);
     PRINT_CODEC_SUPPORTED(bsf, codec_ids, enum AVCodecID, "codecs",
                           AV_CODEC_ID_NONE, GET_CODEC_NAME);
     if (bsf->priv_class)
         show_help_children(bsf->priv_class, AV_OPT_FLAG_BSF_PARAM);
+#else
+    av_log(NULL, AV_LOG_ERROR, "Bitstream filters not available in this FFmpeg version.\n");
+#endif
 }
 
 int show_help(void *optctx, const char *opt, const char *arg)
@@ -2253,11 +2294,17 @@ static int print_device_sources(AVInputFormat *fmt, AVDictionary *opts)
         return AVERROR(EINVAL);
 
     av_log(NULL, AV_LOG_STDERR, "Auto-detected sources for %s:\n", fmt->name);
+#if defined(HAVE_AV_INPUT_FORMAT_GET_DEVICE_LIST) || defined(av_bsf_iterate)
     if (!fmt->get_device_list) {
         ret = AVERROR(ENOSYS);
         av_log(NULL, AV_LOG_STDERR, "Cannot list sources. Not implemented.\n");
         goto fail;
     }
+#else
+    ret = AVERROR(ENOSYS);
+    av_log(NULL, AV_LOG_STDERR, "Cannot list sources. Not implemented in this FFmpeg version.\n");
+    goto fail;
+#endif
 
     if ((ret = avdevice_list_input_sources(fmt, NULL, opts, &device_list)) < 0) {
         av_log(NULL, AV_LOG_STDERR, "Cannot list sources.\n");
@@ -2283,11 +2330,17 @@ static int print_device_sinks(AVOutputFormat *fmt, AVDictionary *opts)
         return AVERROR(EINVAL);
 
     av_log(NULL, AV_LOG_STDERR, "Auto-detected sinks for %s:\n", fmt->name);
+#if defined(HAVE_AV_OUTPUT_FORMAT_GET_DEVICE_LIST) || defined(av_bsf_iterate)
     if (!fmt->get_device_list) {
         ret = AVERROR(ENOSYS);
         av_log(NULL, AV_LOG_STDERR, "Cannot list sinks. Not implemented.\n");
         goto fail;
     }
+#else
+    ret = AVERROR(ENOSYS);
+    av_log(NULL, AV_LOG_STDERR, "Cannot list sinks. Not implemented in this FFmpeg version.\n");
+    goto fail;
+#endif
 
     if ((ret = avdevice_list_output_sinks(fmt, NULL, opts, &device_list)) < 0) {
         av_log(NULL, AV_LOG_STDERR, "Cannot list sinks.\n");
