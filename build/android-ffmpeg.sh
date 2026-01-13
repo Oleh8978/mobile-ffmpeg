@@ -339,7 +339,7 @@ cd ${BASEDIR}/src/${LIB_NAME} || exit 1
 
 if [[ -z ${NO_WORKSPACE_CLEANUP_ffmpeg} ]]; then
     echo -e "INFO: Cleaning workspace for ${LIB_NAME}" 1>>${BASEDIR}/build.log 2>&1
-    make distclean 2>/dev/null 1>/dev/null
+    make distclean 2>/dev/null 1>/dev/null || true
 fi
 
 export CFLAGS="${HIGH_PRIORITY_INCLUDES} ${CFLAGS}"
@@ -361,6 +361,7 @@ ${SED_INLINE} 's/static int av_log_level/__thread int av_log_level/g' ${BASEDIR}
     --sysroot="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/sysroot" \
     --prefix="${BASEDIR}/prebuilt/android-$(get_target_build)/${LIB_NAME}" \
     --pkg-config="${HOST_PKG_CONFIG_PATH}" \
+    --disable-stripping \
     --enable-version3 \
     --arch="${TARGET_ARCH}" \
     --cpu="${TARGET_CPU}" \
@@ -457,6 +458,7 @@ cp -f ${BASEDIR}/src/ffmpeg/libavformat/network.h ${BASEDIR}/prebuilt/android-$(
 cp -f ${BASEDIR}/src/ffmpeg/libavformat/os_support.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavformat
 cp -f ${BASEDIR}/src/ffmpeg/libavformat/url.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavformat
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/internal.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
+cp -f ${BASEDIR}/src/ffmpeg/libavutil/attributes_internal.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/libm.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/reverse.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil
 cp -f ${BASEDIR}/src/ffmpeg/libavutil/thread.h ${BASEDIR}/prebuilt/android-$(get_target_build)/ffmpeg/include/libavutil

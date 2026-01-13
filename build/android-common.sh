@@ -243,7 +243,7 @@ get_size_optimization_cflags() {
         arm64-v8a)
             case $1 in
                 ffmpeg)
-                    ARCH_OPTIMIZATION="${LINK_TIME_OPTIMIZATION_FLAGS} -fuse-ld=gold -O2 -ffunction-sections -fdata-sections"
+                    ARCH_OPTIMIZATION="${LINK_TIME_OPTIMIZATION_FLAGS} -O2 -ffunction-sections -fdata-sections"
                 ;;
                 *)
                     ARCH_OPTIMIZATION="-Os -ffunction-sections -fdata-sections"
@@ -383,7 +383,7 @@ get_size_optimization_ldflags() {
         arm64-v8a)
             case $1 in
                 ffmpeg)
-                    echo "-Wl,--gc-sections ${LINK_TIME_OPTIMIZATION_FLAGS} -fuse-ld=gold -O2 -ffunction-sections -fdata-sections -finline-functions"
+                    echo "-Wl,--gc-sections ${LINK_TIME_OPTIMIZATION_FLAGS} -O2 -ffunction-sections -fdata-sections -finline-functions"
                 ;;
                 *)
                     echo "-Wl,--gc-sections -Os -ffunction-sections -fdata-sections"
@@ -902,7 +902,7 @@ set_toolchain_clang_paths() {
 
     export LD=${BUILD_HOST}-ld
     export RANLIB=${BUILD_HOST}-ranlib
-    export STRIP=${BUILD_HOST}-strip
+    export STRIP="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-strip"
 
     export INSTALL_PKG_CONFIG_DIR="${BASEDIR}/prebuilt/android-$(get_target_build)/pkgconfig"
     export ZLIB_PACKAGE_CONFIG_PATH="${INSTALL_PKG_CONFIG_DIR}/zlib.pc"

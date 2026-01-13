@@ -51,8 +51,27 @@
 #include "libavformat/avformat.h"
 #include "libswscale/swscale.h"
 
+#include <limits.h>
+#include <stdlib.h>
+
 #ifdef _WIN32
 #undef main /* We don't want SDL to override our main() */
+#endif
+
+/* Compatibility wrappers for removed FFmpeg functions */
+#ifndef av_mallocz_array
+static inline void *av_mallocz_array(size_t nmemb, size_t size) {
+    if (nmemb == 0 || size == 0) return NULL;
+    if (nmemb > SIZE_MAX / size) return NULL;
+    return av_calloc(nmemb, size);
+}
+#endif
+
+#ifndef av_codec_next
+static inline const AVCodec *av_codec_next(const AVCodec *c) {
+    void *opaque = (void *)c;
+    return av_codec_iterate(&opaque);
+}
 #endif
 
 /**

@@ -20,10 +20,12 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #include "config.h"
 #include "libavcodec/jni.h"
 #include "libavutil/bprint.h"
+#include "libavutil/mem.h"
 #include "mobileffmpeg.h"
 
 /** Forward declaration for function defined in fftools_ffprobe.c */

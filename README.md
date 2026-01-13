@@ -1,3 +1,6 @@
+> ⚠️ This fork contains updated build instructions and compatibility notes
+> for newer Android SDK / NDK versions.
+
 # MobileFFmpeg [![Financial Contributors on Open Collective](https://opencollective.com/mobile-ffmpeg/all/badge.svg?label=financial+contributors)](https://opencollective.com/mobile-ffmpeg) ![GitHub release](https://img.shields.io/badge/release-v4.4-blue.svg) ![Maven Central](https://img.shields.io/maven-central/v/com.arthenica/mobile-ffmpeg-min) ![CocoaPods](https://img.shields.io/badge/pod-v4.4-blue.svg) [![Build Status](https://travis-ci.org/tanersener/mobile-ffmpeg.svg?branch=master)](https://travis-ci.org/tanersener/mobile-ffmpeg)
 
 FFmpeg for Android, iOS and tvOS. 
@@ -525,6 +528,48 @@ Please visit [Android Prerequisites](https://github.com/tanersener/mobile-ffmpeg
     - **Xcode 7.3.1** or later
     - **tvOS SDK 9.2** or later
     - **Command Line Tools**
+
+> ⚠️ **Note about newer Android NDK versions**
+>
+> Although the documentation mentions Android NDK r21 or later, this project
+> has been successfully built with newer NDK versions.
+>
+> For example, Android NDK **r25c** can be downloaded from:
+>
+> https://dl.google.com/android/repository/android-ndk-r25c-darwin.zip
+>
+> Newer NDK versions may require adjusting environment variables or API levels
+> during the build process.
+
+#### 5.1.1 Android NDK Setup (Step by Step)
+
+1. Download and install Android SDK using Android Studio.
+
+2. Download Android NDK (example: r25c):
+   https://dl.google.com/android/repository/android-ndk-r25c-darwin.zip
+
+3. Extract the NDK into your Android SDK directory, for example:
+
+
+4. Export required environment variables:
+
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/android-ndk-r25c
+
+5. (Optional) Verify NDK installation:
+
+$ANDROID_NDK_ROOT/ndk-build --version
+
+6. Run the Android build script:
+
+->>>>> ./android.sh
+
+> If the build appears idle during FFmpeg compilation, this is expected.
+> FFmpeg builds can take several minutes per architecture.
+
+> ℹ️ When using newer NDK versions, it is recommended to use
+> Android API level **24 or higher** (for main releases) to avoid
+> toolchain compatibility issues.
 
 #### 5.2 Build Scripts
 Use `android.sh`, `ios.sh` and `tvos.sh` to build MobileFFmpeg for each platform. 
