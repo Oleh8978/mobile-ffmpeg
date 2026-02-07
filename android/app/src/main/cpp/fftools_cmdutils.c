@@ -1989,7 +1989,7 @@ static void show_help_filter(const char *name)
         av_log(NULL, AV_LOG_STDERR, "    slice threading supported\n");
 
     av_log(NULL, AV_LOG_STDERR, "    Inputs:\n");
-#ifdef avfilter_pad_count
+#if defined(LIBAVFILTER_VERSION_MAJOR) && (LIBAVFILTER_VERSION_MAJOR >= 7)
     count = avfilter_pad_count(f->inputs);
 #else
     count = f->nb_inputs;
@@ -2004,7 +2004,7 @@ static void show_help_filter(const char *name)
         av_log(NULL, AV_LOG_STDERR, "        none (source filter)\n");
 
     av_log(NULL, AV_LOG_STDERR, "    Outputs:\n");
-#ifdef avfilter_pad_count
+#if defined(LIBAVFILTER_VERSION_MAJOR) && (LIBAVFILTER_VERSION_MAJOR >= 7)
     count = avfilter_pad_count(f->outputs);
 #else
     count = f->nb_outputs;

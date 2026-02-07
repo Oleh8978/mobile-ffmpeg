@@ -33,11 +33,6 @@ public enum Abi {
     ABI_ARMV7A_NEON("armeabi-v7a-neon"),
 
     /**
-     * Represents armeabi-v7a ABI
-     */
-    ABI_ARMV7A("armeabi-v7a"),
-
-    /**
      * Represents armeabi ABI
      */
     ABI_ARM("armeabi"),
@@ -75,8 +70,6 @@ public enum Abi {
             return ABI_UNKNOWN;
         } else if (abiName.equals(ABI_ARM.getName())) {
             return ABI_ARM;
-        } else if (abiName.equals(ABI_ARMV7A.getName())) {
-            return ABI_ARMV7A;
         } else if (abiName.equals(ABI_ARMV7A_NEON.getName())) {
             return ABI_ARMV7A_NEON;
         } else if (abiName.equals(ABI_ARM64_V8A.getName())) {

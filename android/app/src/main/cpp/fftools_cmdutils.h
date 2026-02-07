@@ -50,6 +50,7 @@
 #include "libavfilter/avfilter.h"
 #include "libavformat/avformat.h"
 #include "libswscale/swscale.h"
+#include "libavutil/version.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -59,7 +60,7 @@
 #endif
 
 /* Compatibility wrappers for removed FFmpeg functions */
-#ifndef av_mallocz_array
+#if LIBAVUTIL_VERSION_MAJOR < 56
 static inline void *av_mallocz_array(size_t nmemb, size_t size) {
     if (nmemb == 0 || size == 0) return NULL;
     if (nmemb > SIZE_MAX / size) return NULL;
@@ -67,7 +68,7 @@ static inline void *av_mallocz_array(size_t nmemb, size_t size) {
 }
 #endif
 
-#ifndef av_codec_next
+#if LIBAVCODEC_VERSION_MAJOR < 58
 static inline const AVCodec *av_codec_next(const AVCodec *c) {
     void *opaque = (void *)c;
     return av_codec_iterate(&opaque);

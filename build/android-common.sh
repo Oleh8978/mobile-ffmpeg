@@ -198,7 +198,7 @@ get_common_cflags() {
         local LTS_BUILD__FLAG="-DMOBILE_FFMPEG_LTS "
     fi
 
-    echo "-fno-integrated-as -fstrict-aliasing -fPIC -DANDROID ${LTS_BUILD__FLAG}-D__ANDROID__ -D__ANDROID_API__=${API}"
+    echo "-fstrict-aliasing -fPIC -DANDROID ${LTS_BUILD__FLAG}-D__ANDROID__ -D__ANDROID_API__=${API}"
 }
 
 get_arch_specific_cflags() {
@@ -213,10 +213,10 @@ get_arch_specific_cflags() {
             echo "-march=armv8-a -DMOBILE_FFMPEG_ARM64_V8A"
         ;;
         x86)
-            echo "-march=i686 -mtune=intel -mssse3 -mfpmath=sse -m32 -DMOBILE_FFMPEG_X86"
+            echo "-march=i686 -mtune=generic -mssse3 -mfpmath=sse -m32 -DMOBILE_FFMPEG_X86"
         ;;
         x86-64)
-            echo "-march=x86-64 -msse4.2 -mpopcnt -m64 -mtune=intel -DMOBILE_FFMPEG_X86_64"
+            echo "-march=x86-64 -msse4.2 -mpopcnt -m64 -mtune=generic -DMOBILE_FFMPEG_X86_64"
         ;;
     esac
 }

@@ -20,13 +20,13 @@ else
 endif
 
 MY_ARM_MODE := arm
-MY_ARM_NEON := false
+MY_ARM_NEON :=
 LOCAL_PATH := $(MY_LOCAL_PATH)/../app/src/main/cpp
 
 # DEFINE ARCH FLAGS
 ifeq ($(TARGET_ARCH_ABI), armeabi-v7a)
     MY_ARCH_FLAGS := ARM_V7A
-    MY_ARM_NEON := false
+    MY_ARM_NEON := true
 endif
 ifeq ($(TARGET_ARCH_ABI), arm64-v8a)
     MY_ARCH_FLAGS := ARM64_V8A
@@ -47,7 +47,9 @@ LOCAL_CFLAGS := -Wall -Wextra -Werror -Wno-unused-parameter -DMOBILE_FFMPEG_${MY
 LOCAL_C_INCLUDES := $(FFMPEG_INCLUDES)
 LOCAL_LDLIBS := -llog -lz -landroid
 LOCAL_STATIC_LIBRARIES := cpu-features
-LOCAL_ARM_NEON := ${MY_ARM_NEON}
+ifneq ($(MY_ARM_NEON),)
+    LOCAL_ARM_NEON := ${MY_ARM_NEON}
+endif
 include $(BUILD_SHARED_LIBRARY)
 
 ifeq ($(TARGET_PLATFORM),android-16)
@@ -97,7 +99,9 @@ ifeq ($(MY_BUILD_GENERIC_MOBILE_FFMPEG), true)
     ifeq ($(APP_STL), c++_shared)
         LOCAL_SHARED_LIBRARIES += c++_shared # otherwise NDK will not add the library for packaging
     endif
-    LOCAL_ARM_NEON := ${MY_ARM_NEON}
+    ifneq ($(MY_ARM_NEON),)
+        LOCAL_ARM_NEON := ${MY_ARM_NEON}
+    endif
     include $(BUILD_SHARED_LIBRARY)
 
     $(call import-module, ffmpeg)
