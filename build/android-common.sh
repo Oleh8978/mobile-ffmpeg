@@ -884,7 +884,11 @@ set_toolchain_clang_paths() {
 
     BUILD_HOST=$(get_build_host)
     
-    export AR=${BUILD_HOST}-ar
+    if [ -x "${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ar" ]; then
+        export AR=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ar
+    else
+        export AR=${BUILD_HOST}-ar
+    fi
     export CC=$(get_clang_target_host)-clang
     export CXX=$(get_clang_target_host)-clang++
 
@@ -901,7 +905,11 @@ set_toolchain_clang_paths() {
     esac
 
     export LD=${BUILD_HOST}-ld
-    export RANLIB=${BUILD_HOST}-ranlib
+    if [ -x "${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ranlib" ]; then
+        export RANLIB=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ranlib
+    else
+        export RANLIB=${BUILD_HOST}-ranlib
+    fi
     export STRIP="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-strip"
 
     export INSTALL_PKG_CONFIG_DIR="${BASEDIR}/prebuilt/android-$(get_target_build)/pkgconfig"
