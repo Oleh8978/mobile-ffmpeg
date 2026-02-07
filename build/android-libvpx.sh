@@ -28,7 +28,7 @@ LIB_NAME="libvpx"
 set_toolchain_clang_paths ${LIB_NAME}
 
 # PREPARING FLAGS
-export CFLAGS="$(get_cflags ${LIB_NAME}) -I${ANDROID_NDK_ROOT}/sources/android/cpufeatures"
+export CFLAGS="-I${ANDROID_NDK_ROOT}/sources/android/cpufeatures"
 export CXXFLAGS=$(get_cxxflags ${LIB_NAME})
 export LDFLAGS="$(get_ldflags ${LIB_NAME})"
 
@@ -38,6 +38,7 @@ cp ${BASEDIR}/tools/make/configure.libvpx.android.sh ${BASEDIR}/src/${LIB_NAME}/
 
 TARGET_CPU=""
 DISABLE_NEON_FLAG=""
+AS_TOOL=""
 case ${ARCH} in
     arm-v7a)
         TARGET_CPU="armv7"
@@ -45,21 +46,28 @@ case ${ARCH} in
         # NEON disabled explicitly because
         # --enable-runtime-cpu-detect enables NEON for armv7 cpu
         DISABLE_NEON_FLAG="--disable-neon"
+        AS_TOOL="${CC}"
+        export AS="${CC} -c"
         unset ASFLAGS
     ;;
     arm-v7a-neon)
         # NEON IS ENABLED BY --enable-runtime-cpu-detect
         TARGET_CPU="armv7"
+        AS_TOOL="${CC}"
+        export AS="${CC} -c"
         unset ASFLAGS
     ;;
     arm64-v8a)
         # NEON IS ENABLED BY --enable-runtime-cpu-detect
         TARGET_CPU="arm64"
+        AS_TOOL="${CC}"
+        export AS="${CC} -c"
         unset ASFLAGS
     ;;
     *)
         # INTEL CPU EXTENSIONS ENABLED BY --enable-runtime-cpu-detect
         TARGET_CPU="$(get_target_build)"
+        AS_TOOL="yasm"
         export ASFLAGS="-D__ANDROID__"
     ;;
 esac
@@ -73,12 +81,13 @@ make distclean 2>/dev/null 1>/dev/null
     --target="${TARGET_CPU}-android-gcc" \
     --extra-cflags="${CFLAGS}" \
     --extra-cxxflags="${CXXFLAGS}" \
-    --as=yasm \
+    --as=auto \
     --log=yes \
     --enable-libs \
     --enable-install-libs \
     --enable-pic \
     --enable-optimizations \
+    --disable-werror \
     --enable-better-hw-compatibility \
     --enable-runtime-cpu-detect \
     ${DISABLE_NEON_FLAG} \
