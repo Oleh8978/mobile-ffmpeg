@@ -32,6 +32,16 @@ BUILD_HOST=$(get_build_host)
 export CFLAGS=$(get_cflags ${LIB_NAME})
 export CXXFLAGS=$(get_cxxflags ${LIB_NAME})
 export LDFLAGS=$(get_ldflags ${LIB_NAME})
+export CC_FOR_BUILD="/usr/bin/clang -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration"
+export CXX_FOR_BUILD=/usr/bin/clang++
+export AR_FOR_BUILD=/usr/bin/ar
+export RANLIB_FOR_BUILD=/usr/bin/ranlib
+export BUILD_CC=${CC_FOR_BUILD}
+export BUILD_CXX=${CXX_FOR_BUILD}
+export CFLAGS_FOR_BUILD="-Wno-error=implicit-function-declaration -Wno-implicit-function-declaration"
+export CXXFLAGS_FOR_BUILD=""
+export CPPFLAGS_FOR_BUILD=""
+export LDFLAGS_FOR_BUILD=""
 
 OPTIONAL_CPU_SUPPORT=""
 case ${ARCH} in
@@ -45,7 +55,10 @@ esac
 
 cd ${BASEDIR}/src/${LIB_NAME} || exit 1
 
+BUILD_SYSTEM=$(./config.guess)
+
 make distclean 2>/dev/null 1>/dev/null
+rm -f config.cache config.log
 
 # RECONFIGURE IF REQUESTED
 if [[ ${RECONF_nettle} -eq 1 ]]; then
@@ -53,6 +66,7 @@ if [[ ${RECONF_nettle} -eq 1 ]]; then
 fi
 
 ./configure \
+    --build=${BUILD_SYSTEM} \
     --prefix=${BASEDIR}/prebuilt/android-$(get_target_build)/${LIB_NAME} \
     --enable-pic \
     --enable-static \
