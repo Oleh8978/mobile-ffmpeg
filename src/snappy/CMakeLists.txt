@@ -26,14 +26,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 project(Snappy VERSION 1.1.8 LANGUAGES C CXX)
 
 # C++ standard can be overridden when this is used as a sub-project.
 if(NOT CMAKE_CXX_STANDARD)
   # This project requires C++11.
   set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif(NOT CMAKE_CXX_STANDARD)
 
