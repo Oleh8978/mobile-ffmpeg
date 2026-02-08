@@ -1,4 +1,4 @@
-prefix=/Users/oleh/Desktop/mobile-ffmpeg/prebuilt/android-arm/neon/gmp
+prefix=/Users/oleh/Desktop/mobile-ffmpeg/prebuilt/android-arm64/gmp
 exec_prefix=${prefix}
 includedir=${prefix}/include
 libdir=${exec_prefix}/lib
