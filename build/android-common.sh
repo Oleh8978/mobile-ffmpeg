@@ -880,22 +880,23 @@ android_ndk_cmake() {
 }
 
 set_toolchain_clang_paths() {
-    export PATH=$PATH:${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin
+    TOOLCHAIN_BIN="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin"
+    export PATH=${TOOLCHAIN_BIN}:$PATH
 
     BUILD_HOST=$(get_build_host)
     
-    if [ -x "${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ar" ]; then
-        export AR=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ar
+    if [ -x "${TOOLCHAIN_BIN}/llvm-ar" ]; then
+        export AR="${TOOLCHAIN_BIN}/llvm-ar"
     else
-        export AR=${BUILD_HOST}-ar
+        export AR="${TOOLCHAIN_BIN}/${BUILD_HOST}-ar"
     fi
-    export CC=$(get_clang_target_host)-clang
-    export CXX=$(get_clang_target_host)-clang++
+    export CC="${TOOLCHAIN_BIN}/$(get_clang_target_host)-clang"
+    export CXX="${TOOLCHAIN_BIN}/$(get_clang_target_host)-clang++"
 
     if [ "$1" == "x264" ]; then
-        export AS=${CC}
+        export AS="${CC}"
     else
-        export AS=${BUILD_HOST}-as
+        export AS="${TOOLCHAIN_BIN}/${BUILD_HOST}-as"
     fi
 
     case ${ARCH} in
@@ -904,13 +905,13 @@ set_toolchain_clang_paths() {
         ;;
     esac
 
-    export LD=${BUILD_HOST}-ld
-    if [ -x "${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ranlib" ]; then
-        export RANLIB=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-ranlib
+    export LD="${TOOLCHAIN_BIN}/${BUILD_HOST}-ld"
+    if [ -x "${TOOLCHAIN_BIN}/llvm-ranlib" ]; then
+        export RANLIB="${TOOLCHAIN_BIN}/llvm-ranlib"
     else
-        export RANLIB=${BUILD_HOST}-ranlib
+        export RANLIB="${TOOLCHAIN_BIN}/${BUILD_HOST}-ranlib"
     fi
-    export STRIP="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-strip"
+    export STRIP="${TOOLCHAIN_BIN}/llvm-strip"
 
     export INSTALL_PKG_CONFIG_DIR="${BASEDIR}/prebuilt/android-$(get_target_build)/pkgconfig"
     export ZLIB_PACKAGE_CONFIG_PATH="${INSTALL_PKG_CONFIG_DIR}/zlib.pc"
@@ -921,6 +922,11 @@ set_toolchain_clang_paths() {
 
     if [ ! -f ${ZLIB_PACKAGE_CONFIG_PATH} ]; then
         create_zlib_system_package_config
+    else
+        local CURRENT_ZLIB_PREFIX="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/sysroot/usr"
+        if ! grep -q "^prefix=${CURRENT_ZLIB_PREFIX}$" "${ZLIB_PACKAGE_CONFIG_PATH}"; then
+            create_zlib_system_package_config
+        fi
     fi
 
     prepare_inline_sed
