@@ -65,13 +65,13 @@ ECHO="printf %s\\n"
 PATH_SEPARATOR=":"
 
 # The host system.
-host_alias=arm-linux-androideabi
-host=arm-unknown-linux-androideabi
-host_os=linux-androideabi
+host_alias=aarch64-linux-android
+host=aarch64-unknown-linux-android
+host_os=linux-android
 
 # The build system.
 build_alias=
-build=i386-apple-darwin21.6.0
+build=x86_64-apple-darwin21.6.0
 build_os=darwin21.6.0
 
 # A sed program that does not truncate output.
@@ -167,10 +167,10 @@ old_postuninstall_cmds=""
 lock_old_archive_extraction=no
 
 # A C compiler.
-LTCC="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi33-clang"
+LTCC="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android33-clang"
 
 # LTCC compiler flags.
-LTCFLAGS="-march=armv7-a -mfpu=neon -mfloat-abi=softfp -DMOBILE_FFMPEG_ARM_V7A_NEON -std=gnu99 -Wno-unused-function -DPIC -fstrict-aliasing -fPIC -DANDROID -D__ANDROID__ -D__ANDROID_API__=33 -Os -ffunction-sections -fdata-sections   "
+LTCFLAGS="-march=armv8-a -DMOBILE_FFMPEG_ARM64_V8A -std=gnu99 -Wno-unused-function -DPIC -fstrict-aliasing -fPIC -DANDROID -D__ANDROID__ -D__ANDROID_API__=33 -Os -ffunction-sections -fdata-sections   "
 
 # Take the output of nm and produce a listing of raw symbols and C names.
 global_symbol_pipe="/usr/local/bin/gsed -n -e 's/^.*[	 ]\\([ABCDGIRSTW][ABCDGIRSTW]*\\)[	 ][	 ]*\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 \\2 \\2/p' | /usr/local/bin/gsed '/ __gnu_lto/d'"
@@ -287,7 +287,7 @@ finish_eval=""
 hardcode_into_libs=yes
 
 # Compile-time system search path for libraries.
-sys_lib_search_path_spec="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/lib64/clang/14.0.7 /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/lib64/clang/14.0.7/lib/linux/arm /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/33 /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib "
+sys_lib_search_path_spec="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/lib64/clang/14.0.7 /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/lib64/clang/14.0.7/lib/linux/aarch64 /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/33 /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android /Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib "
 
 # Detected run-time system search path for libraries.
 sys_lib_dlsearch_path_spec="/lib /usr/lib"
@@ -310,7 +310,7 @@ striplib="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebu
 
 
 # The linker used to build libraries.
-LD="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ld"
+LD="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android-ld"
 
 # How to create reloadable object files.
 reload_flag=" -r"
@@ -320,7 +320,7 @@ reload_cmds="\$LD\$reload_flag -o \$output\$reload_objs"
 old_archive_cmds="\$AR \$AR_FLAGS \$oldlib\$oldobjs~\$RANLIB \$tool_oldlib"
 
 # A language specific compiler.
-CC="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi33-clang"
+CC="/Users/oleh/Library/Android/sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android33-clang"
 
 # Is the compiler the GNU compiler?
 with_gcc=yes

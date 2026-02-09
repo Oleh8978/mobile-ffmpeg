@@ -58,9 +58,9 @@ fi
     --disable-maintainer-mode \
     --host=${BUILD_HOST} || exit 1
 
-make -j$(get_cpu_count) ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTOHEADER=/usr/bin/true AUTOMAKE=/usr/bin/true || exit 1
+make -j$(get_cpu_count) -C src ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTOHEADER=/usr/bin/true AUTOMAKE=/usr/bin/true || exit 1
 
 # CREATE PACKAGE CONFIG MANUALLY
 create_fontconfig_package_config "2.13.92"
 
-make install ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTOHEADER=/usr/bin/true AUTOMAKE=/usr/bin/true || exit 1
+make -C src install ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTOHEADER=/usr/bin/true AUTOMAKE=/usr/bin/true || exit 1

@@ -48,7 +48,7 @@ cd ${BASEDIR}/src/${LIB_NAME} || exit 1
 
 HARDWARE_OPTIONS=""
 case ${ARCH} in
-    x86)
+    arm-v7a-neon | arm64-v8a | x86)
         HARDWARE_OPTIONS="--disable-hardware-acceleration"
     ;;
     *)
