@@ -64,3 +64,8 @@ make -j$(get_cpu_count) -C src ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTO
 create_fontconfig_package_config "2.13.92"
 
 make -C src install ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTOHEADER=/usr/bin/true AUTOMAKE=/usr/bin/true || exit 1
+
+# MANUALLY INSTALL HEADERS (lib build only)
+FONTCONFIG_INCLUDE_DIR="${BASEDIR}/prebuilt/android-$(get_target_build)/fontconfig/include"
+mkdir -p "${FONTCONFIG_INCLUDE_DIR}" || exit 1
+cp -R "${BASEDIR}/src/${LIB_NAME}/fontconfig" "${FONTCONFIG_INCLUDE_DIR}/" || exit 1

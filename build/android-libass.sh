@@ -29,10 +29,12 @@ set_toolchain_clang_paths ${LIB_NAME}
 
 # PREPARING FLAGS
 BUILD_HOST=$(get_build_host)
-export CFLAGS=$(get_cflags ${LIB_NAME})
+export CFLAGS="$(get_cflags ${LIB_NAME}) -I${BASEDIR}/prebuilt/android-$(get_target_build)/fontconfig/include"
 export CXXFLAGS=$(get_cxxflags ${LIB_NAME})
-export LDFLAGS=$(get_ldflags ${LIB_NAME})
+export LDFLAGS="$(get_ldflags ${LIB_NAME}) -L${BASEDIR}/prebuilt/android-$(get_target_build)/fontconfig/lib -lfontconfig"
 export PKG_CONFIG_LIBDIR="${INSTALL_PKG_CONFIG_DIR}"
+export FONTCONFIG_CFLAGS="-I${BASEDIR}/prebuilt/android-$(get_target_build)/fontconfig/include"
+export FONTCONFIG_LIBS="-L${BASEDIR}/prebuilt/android-$(get_target_build)/fontconfig/lib -lfontconfig"
 
 cd ${BASEDIR}/src/${LIB_NAME} || exit 1
 
