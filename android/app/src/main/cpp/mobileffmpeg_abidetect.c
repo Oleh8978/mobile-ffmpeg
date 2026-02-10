@@ -70,7 +70,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 JNIEXPORT jstring JNICALL Java_com_arthenica_mobileffmpeg_AbiDetect_getNativeAbi(JNIEnv *env, jclass object) {
 
 #ifdef MOBILE_FFMPEG_ARM_V7A
-    return (*env)->NewStringUTF(env, "arm-v7a");
+    return (*env)->NewStringUTF(env, ABI_ARMV7A_NEON);
 #elif MOBILE_FFMPEG_ARM64_V8A
     return (*env)->NewStringUTF(env, "arm64-v8a");
 #elif MOBILE_FFMPEG_X86
@@ -100,7 +100,7 @@ JNIEXPORT jstring JNICALL Java_com_arthenica_mobileffmpeg_AbiDetect_getNativeCpu
             if (features & ANDROID_CPU_ARM_FEATURE_NEON) {
                 return (*env)->NewStringUTF(env, ABI_ARMV7A_NEON);
             } else {
-                return (*env)->NewStringUTF(env, ABI_ARMV7A);
+                return (*env)->NewStringUTF(env, ABI_ARM);
             }
         } else {
             return (*env)->NewStringUTF(env, ABI_ARM);

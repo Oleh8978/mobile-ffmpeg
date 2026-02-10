@@ -29,14 +29,19 @@ set_toolchain_clang_paths ${LIB_NAME}
 
 # PREPARING FLAGS
 BUILD_HOST=$(get_build_host)
-export CFLAGS=$(get_cflags ${LIB_NAME})
-export CXXFLAGS=$(get_cxxflags ${LIB_NAME})
+SYSROOT=${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/sysroot
+unset CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH
+export CPPFLAGS="--sysroot=${SYSROOT}"
+export CFLAGS="$(get_cflags ${LIB_NAME}) --sysroot=${SYSROOT}"
+export CXXFLAGS="$(get_cxxflags ${LIB_NAME}) --sysroot=${SYSROOT}"
 export LDFLAGS=$(get_ldflags ${LIB_NAME})
 export PKG_CONFIG_LIBDIR="${INSTALL_PKG_CONFIG_DIR}"
+export PKG_CONFIG_PATH="${INSTALL_PKG_CONFIG_DIR}"
 
 cd ${BASEDIR}/src/${LIB_NAME} || exit 1
 
 make distclean 2>/dev/null 1>/dev/null
+make clean 2>/dev/null 1>/dev/null
 
 # NOTE THAT PYTHON IS DISABLED DUE TO THE FOLLOWING ERROR
 #
@@ -61,6 +66,8 @@ autoreconf_library ${LIB_NAME}
     --disable-shared \
     --disable-fast-install \
     --host=${BUILD_HOST} || exit 1
+
+${SED_INLINE} -e 's/^bin_PROGRAMS.*/bin_PROGRAMS =/' Makefile
 
 make -j$(get_cpu_count) || exit 1
 

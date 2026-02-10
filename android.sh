@@ -58,7 +58,7 @@ LIBRARY_MEDIA_CODEC=46
 LIBRARY_CPU_FEATURES=47
 
 # ENABLE ARCH
-ENABLED_ARCHITECTURES=(1 1 1 1 1)
+ENABLED_ARCHITECTURES=(0 1 1 1 1)
 
 # ENABLE LIBRARIES
 ENABLED_LIBRARIES=(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1)
@@ -81,7 +81,7 @@ get_mobile_ffmpeg_version() {
 display_help() {
   COMMAND=$(echo $0 | sed -e 's/\.\///g')
 
-  echo -e "\n'"$COMMAND"' builds FFmpeg and MobileFFmpeg for Android platform. By default five Android ABIs (armeabi-v7a, armeabi-v7a-neon, arm64-v8a, x86 and x86_64) are built \
+  echo -e "\n'"$COMMAND"' builds FFmpeg and MobileFFmpeg for Android platform. By default four Android ABIs (armeabi-v7a-neon, arm64-v8a, x86 and x86_64) are built \
 without any external libraries enabled. Options can be used to disable ABIs and/or enable external libraries. \
 Please note that GPL libraries (external libraries with GPL license) need --enable-gpl flag to be set explicitly. \
 When compilation ends an Android Archive (AAR) file is created under the prebuilt folder.\n"
@@ -105,7 +105,6 @@ When compilation ends an Android Archive (AAR) file is created under the prebuil
 
   echo -e "Platforms:"
 
-  echo -e "  --disable-arm-v7a\t\tdo not build arm-v7a platform [yes]"
   echo -e "  --disable-arm-v7a-neon\tdo not build arm-v7a-neon platform [yes]"
   echo -e "  --disable-arm64-v8a\t\tdo not build arm64-v8a platform [yes]"
   echo -e "  --disable-x86\t\t\tdo not build x86 platform [yes]"
@@ -595,6 +594,11 @@ build_application_mk() {
     local LTS_BUILD_FLAG="-DMOBILE_FFMPEG_LTS "
   fi
 
+  local APP_ARM_NEON=""
+  if [[ -n ${NDK_MAJOR_VERSION} ]] && [[ ${NDK_MAJOR_VERSION} -ge 21 ]]; then
+    APP_ARM_NEON="true"
+  fi
+
   if [[ ${ENABLED_LIBRARIES[$LIBRARY_X265]} -eq 1 ]] || [[ ${ENABLED_LIBRARIES[$LIBRARY_TESSERACT]} -eq 1 ]] || [[ ${ENABLED_LIBRARIES[$LIBRARY_OPENH264]} -eq 1 ]] || [[ ${ENABLED_LIBRARIES[$LIBRARY_SNAPPY]} -eq 1 ]] || [[ ${ENABLED_LIBRARIES[$LIBRARY_RUBBERBAND]} -eq 1 ]]; then
     local APP_STL="c++_shared"
   else
@@ -615,6 +619,8 @@ APP_STL := ${APP_STL}
 APP_PLATFORM := android-${API}
 
 APP_CFLAGS := -O3 -DANDROID ${LTS_BUILD_FLAG}${BUILD_DATE} -Wall -Wno-deprecated-declarations -Wno-pointer-sign -Wno-switch -Wno-unused-result -Wno-unused-variable
+
+APP_ARM_NEON := ${APP_ARM_NEON}
 
 APP_LDFLAGS := -Wl,--hash-style=both
 EOF
@@ -637,6 +643,15 @@ DETECTED_NDK_VERSION=$(grep -Eo Revision.* ${ANDROID_NDK_ROOT}/source.properties
 
 echo -e "\nINFO: Using Android NDK v${DETECTED_NDK_VERSION} provided at ${ANDROID_NDK_ROOT}\n" 1>>${BASEDIR}/build.log 2>&1
 echo -e "INFO: Build options: $*\n" 1>>${BASEDIR}/build.log 2>&1
+
+NDK_MAJOR_VERSION=$(echo "${DETECTED_NDK_VERSION}" | awk -F. '{print $1}' | sed 's/r//g')
+if [[ -n ${NDK_MAJOR_VERSION} ]] && [[ ${NDK_MAJOR_VERSION} -ge 21 ]]; then
+  if [[ ${ENABLED_ARCHITECTURES[${ARCH_ARM_V7A}]} -eq 1 ]]; then
+    ENABLED_ARCHITECTURES[${ARCH_ARM_V7A}]=0
+    echo -e "INFO: Disabling arm-v7a (non-NEON) because NDK v${DETECTED_NDK_VERSION} no longer supports non-NEON.\n"
+    echo -e "INFO: Disabling arm-v7a (non-NEON) because NDK v${DETECTED_NDK_VERSION} no longer supports non-NEON.\n" 1>>${BASEDIR}/build.log 2>&1
+  fi
+fi
 
 # CLEAR OLD NATIVE LIBS
 rm -rf ${BASEDIR}/android/libs 1>>${BASEDIR}/build.log 2>&1
@@ -821,19 +836,6 @@ export API=${ORIGINAL_API}
 rm -f ${BASEDIR}/android/build/.armv7 1>>${BASEDIR}/build.log 2>&1
 rm -f ${BASEDIR}/android/build/.armv7neon 1>>${BASEDIR}/build.log 2>&1
 ANDROID_ARCHITECTURES=""
-if [[ ${ENABLED_ARCHITECTURES[0]} -eq 1 ]] || [[ ${ENABLED_ARCHITECTURES[1]} -eq 1 ]]; then
-  ANDROID_ARCHITECTURES+="$(get_android_arch 0) "
-fi
-if [[ ${ENABLED_ARCHITECTURES[0]} -eq 1 ]]; then
-  mkdir -p ${BASEDIR}/android/build 1>>${BASEDIR}/build.log 2>&1
-  cat >"${BASEDIR}/android/build/.armv7" <<EOF
-EOF
-fi
-if [[ ${ENABLED_ARCHITECTURES[1]} -eq 1 ]]; then
-  mkdir -p ${BASEDIR}/android/build 1>>${BASEDIR}/build.log 2>&1
-  cat >"${BASEDIR}/android/build/.armv7neon" <<EOF
-EOF
-fi
 if [[ ${ENABLED_ARCHITECTURES[2]} -eq 1 ]]; then
   ANDROID_ARCHITECTURES+="$(get_android_arch 2) "
 fi
@@ -843,6 +845,8 @@ fi
 if [[ ${ENABLED_ARCHITECTURES[4]} -eq 1 ]]; then
   ANDROID_ARCHITECTURES+="$(get_android_arch 4) "
 fi
+
+ANDROID_ARCHITECTURES=$(echo "${ANDROID_ARCHITECTURES}" | xargs)
 
 if [[ ! -z ${ANDROID_ARCHITECTURES} ]]; then
 
@@ -858,6 +862,16 @@ if [[ ! -z ${ANDROID_ARCHITECTURES} ]]; then
   mkdir -p ${MOBILE_FFMPEG_AAR} 1>>${BASEDIR}/build.log 2>&1
 
   cd ${BASEDIR}/android 1>>${BASEDIR}/build.log 2>&1
+
+  echo -e "INFO: ndk-build APP_ABI=${ANDROID_ARCHITECTURES} NDK_APPLICATION_MK=${BASEDIR}/android/jni/Application.mk" 1>>${BASEDIR}/build.log 2>&1
+
+  export APP_ABI="${ANDROID_ARCHITECTURES}"
+  export NDK_APP_ABI="${ANDROID_ARCHITECTURES}"
+  export APP_ARM_NEON="true"
+  export APP_PLATFORM="android-${API}"
+  export NDK_PROJECT_PATH="${BASEDIR}/android"
+  export APP_BUILD_SCRIPT="${BASEDIR}/android/jni/Android.mk"
+  export NDK_APPLICATION_MK="${BASEDIR}/android/jni/Application.mk"
 
   ${ANDROID_NDK_ROOT}/ndk-build -B 1>>${BASEDIR}/build.log 2>&1
 

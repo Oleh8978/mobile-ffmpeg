@@ -26,9 +26,6 @@
 /** Represents armeabi-v7a ABI with NEON support. */
 #define ABI_ARMV7A_NEON "armeabi-v7a-neon"
 
-/** Represents armeabi-v7a ABI. */
-#define ABI_ARMV7A "armeabi-v7a"
-
 /** Represents armeabi ABI. */
 #define ABI_ARM "armeabi"
 

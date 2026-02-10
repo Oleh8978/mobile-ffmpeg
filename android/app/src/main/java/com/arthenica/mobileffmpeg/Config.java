@@ -95,7 +95,7 @@ public class Config {
                 System.loadLibrary("c++_shared");
             }
 
-            if (AbiDetect.ARM_V7A.equals(AbiDetect.getNativeAbi())) {
+            if (AbiDetect.ARM_V7A_NEON.equals(AbiDetect.getNativeAbi())) {
                 try {
                     System.loadLibrary("avutil_neon");
                     System.loadLibrary("swscale_neon");
@@ -128,7 +128,7 @@ public class Config {
         FFprobe.class.getName();
 
         boolean nativeMobileFFmpegLoaded = false;
-        if (!nativeFFmpegTriedAndFailed && AbiDetect.ARM_V7A.equals(AbiDetect.getNativeAbi())) {
+        if (!nativeFFmpegTriedAndFailed && AbiDetect.ARM_V7A_NEON.equals(AbiDetect.getNativeAbi())) {
             try {
 
                 /*

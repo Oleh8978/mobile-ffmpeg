@@ -37,8 +37,6 @@ public class AbiDetect {
         FFmpeg.class.getName();
     }
 
-    static final String ARM_V7A = "arm-v7a";
-
     static final String ARM_V7A_NEON = "arm-v7a-neon";
 
     private static boolean armV7aNeonLoaded;

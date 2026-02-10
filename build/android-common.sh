@@ -198,7 +198,7 @@ get_common_cflags() {
         local LTS_BUILD__FLAG="-DMOBILE_FFMPEG_LTS "
     fi
 
-    echo "-fno-integrated-as -fstrict-aliasing -fPIC -DANDROID ${LTS_BUILD__FLAG}-D__ANDROID__ -D__ANDROID_API__=${API}"
+    echo "-fstrict-aliasing -fPIC -DANDROID ${LTS_BUILD__FLAG}-D__ANDROID__ -D__ANDROID_API__=${API}"
 }
 
 get_arch_specific_cflags() {
@@ -213,10 +213,10 @@ get_arch_specific_cflags() {
             echo "-march=armv8-a -DMOBILE_FFMPEG_ARM64_V8A"
         ;;
         x86)
-            echo "-march=i686 -mtune=intel -mssse3 -mfpmath=sse -m32 -DMOBILE_FFMPEG_X86"
+            echo "-march=i686 -mtune=generic -mssse3 -mfpmath=sse -m32 -DMOBILE_FFMPEG_X86"
         ;;
         x86-64)
-            echo "-march=x86-64 -msse4.2 -mpopcnt -m64 -mtune=intel -DMOBILE_FFMPEG_X86_64"
+            echo "-march=x86-64 -msse4.2 -mpopcnt -m64 -mtune=generic -DMOBILE_FFMPEG_X86_64"
         ;;
     esac
 }
@@ -880,18 +880,23 @@ android_ndk_cmake() {
 }
 
 set_toolchain_clang_paths() {
-    export PATH=$PATH:${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin
+    TOOLCHAIN_BIN="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin"
+    export PATH=${TOOLCHAIN_BIN}:$PATH
 
     BUILD_HOST=$(get_build_host)
     
-    export AR=${BUILD_HOST}-ar
-    export CC=$(get_clang_target_host)-clang
-    export CXX=$(get_clang_target_host)-clang++
+    if [ -x "${TOOLCHAIN_BIN}/llvm-ar" ]; then
+        export AR="${TOOLCHAIN_BIN}/llvm-ar"
+    else
+        export AR="${TOOLCHAIN_BIN}/${BUILD_HOST}-ar"
+    fi
+    export CC="${TOOLCHAIN_BIN}/$(get_clang_target_host)-clang"
+    export CXX="${TOOLCHAIN_BIN}/$(get_clang_target_host)-clang++"
 
     if [ "$1" == "x264" ]; then
-        export AS=${CC}
+        export AS="${CC}"
     else
-        export AS=${BUILD_HOST}-as
+        export AS="${TOOLCHAIN_BIN}/${BUILD_HOST}-as"
     fi
 
     case ${ARCH} in
@@ -900,9 +905,13 @@ set_toolchain_clang_paths() {
         ;;
     esac
 
-    export LD=${BUILD_HOST}-ld
-    export RANLIB=${BUILD_HOST}-ranlib
-    export STRIP="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/bin/llvm-strip"
+    export LD="${TOOLCHAIN_BIN}/${BUILD_HOST}-ld"
+    if [ -x "${TOOLCHAIN_BIN}/llvm-ranlib" ]; then
+        export RANLIB="${TOOLCHAIN_BIN}/llvm-ranlib"
+    else
+        export RANLIB="${TOOLCHAIN_BIN}/${BUILD_HOST}-ranlib"
+    fi
+    export STRIP="${TOOLCHAIN_BIN}/llvm-strip"
 
     export INSTALL_PKG_CONFIG_DIR="${BASEDIR}/prebuilt/android-$(get_target_build)/pkgconfig"
     export ZLIB_PACKAGE_CONFIG_PATH="${INSTALL_PKG_CONFIG_DIR}/zlib.pc"
@@ -913,6 +922,11 @@ set_toolchain_clang_paths() {
 
     if [ ! -f ${ZLIB_PACKAGE_CONFIG_PATH} ]; then
         create_zlib_system_package_config
+    else
+        local CURRENT_ZLIB_PREFIX="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${TOOLCHAIN}/sysroot/usr"
+        if ! grep -q "^prefix=${CURRENT_ZLIB_PREFIX}$" "${ZLIB_PACKAGE_CONFIG_PATH}"; then
+            create_zlib_system_package_config
+        fi
     fi
 
     prepare_inline_sed

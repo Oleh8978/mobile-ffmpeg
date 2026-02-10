@@ -55,11 +55,17 @@ fi
     --disable-rpath \
     --disable-libxml2 \
     --disable-docs \
+    --disable-maintainer-mode \
     --host=${BUILD_HOST} || exit 1
 
-make -j$(get_cpu_count) || exit 1
+make -j$(get_cpu_count) -C src ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTOHEADER=/usr/bin/true AUTOMAKE=/usr/bin/true || exit 1
 
 # CREATE PACKAGE CONFIG MANUALLY
 create_fontconfig_package_config "2.13.92"
 
-make install || exit 1
+make -C src install ACLOCAL=/usr/bin/true AUTOCONF=/usr/bin/true AUTOHEADER=/usr/bin/true AUTOMAKE=/usr/bin/true || exit 1
+
+# MANUALLY INSTALL HEADERS (lib build only)
+FONTCONFIG_INCLUDE_DIR="${BASEDIR}/prebuilt/android-$(get_target_build)/fontconfig/include"
+mkdir -p "${FONTCONFIG_INCLUDE_DIR}" || exit 1
+cp -R "${BASEDIR}/src/${LIB_NAME}/fontconfig" "${FONTCONFIG_INCLUDE_DIR}/" || exit 1

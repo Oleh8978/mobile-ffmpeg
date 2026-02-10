@@ -51,13 +51,15 @@ fi
     --disable-fast-install \
     --disable-sqlite \
     --disable-alsa \
+    --disable-examples \
+    --disable-tests \
     --disable-full-suite \
     --disable-external-libs \
     --host=${BUILD_HOST} || exit 1
 
-make -j$(get_cpu_count) || exit 1
+make -j$(get_cpu_count) SUBDIRS="M4 Win32 src" || exit 1
 
 # MANUALLY COPY PKG-CONFIG FILES
 cp ./*.pc ${INSTALL_PKG_CONFIG_DIR} || exit 1
 
-make install || exit 1
+make install SUBDIRS="M4 Win32 src" || exit 1
